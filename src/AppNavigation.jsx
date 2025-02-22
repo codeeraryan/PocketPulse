@@ -8,6 +8,8 @@ import Signup from './Authentication/Signup'
 import Login from './Authentication/Login'
 import Intro from './Authentication/Intro'
 import Auth from './Authentication/Auth'
+import EditProfile from './bottom/screens/Profile/EditProfile'
+import AddTransaction from './bottom/screens/AddTransaction'
 
 const AppNavigation = () => {
     const Stack = createNativeStackNavigator();
@@ -21,6 +23,8 @@ const AppNavigation = () => {
             <Stack.Screen name='Login' component={Login} />
             <Stack.Screen name='tab' component={BottomNavigator} />
             <Stack.Screen name='Auth' component={Auth} />
+            <Stack.Screen name='EditProfile' component={EditProfile} />
+            <Stack.Screen name='AddTransaction' component={AddTransaction} />
         </Stack.Navigator>
     </NavigationContainer>
     
