@@ -1,11 +1,26 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
 import tailwind from 'twrnc';
-import { HandCoins, IndianRupee, Wallet, X } from 'lucide-react-native';
+import {  HandCoins, IndianRupee, LucideDelete, Trash, Wallet, X  } from 'lucide-react-native';
+import { doc,deleteDoc } from 'firebase/firestore';
+import { db } from '../context/FirebaseContext';
 
-const TransactionCard = ({ section, fee, feeType, day, amount }) => {
+const TransactionCard = ({ section, fee, feeType, day, amount ,id,getTransaction,uid }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+ const handleDeleteExpense =async(expenseId)=>{
+  try{
+    await deleteDoc(doc(db,"users",uid, "expenses",expenseId));
+    ToastAndroid.show('Transaction Deleted', ToastAndroid.SHORT);
+    getTransaction();
+    setIsModalVisible(false)
+
+  }
+  catch(err){
+    console.log(err.message);    
+  }
+
+ }
   return (
     <>
       {/* Transaction Card */}
@@ -19,13 +34,13 @@ const TransactionCard = ({ section, fee, feeType, day, amount }) => {
             {feeType === 'Expense' ? (
               <View style={tailwind`p-2 rounded-xl bg-white items-center`}><HandCoins color={'#f96767'} /></View>
             ) : (
-              <Wallet color={'#65f21d'} />
+              <View style={tailwind`p-2 rounded-xl bg-white items-center`}><Wallet color={'#65f21d'} /></View>
             )}
           </View>
 
           <View style={tailwind`gap-1 overflow-hidden`}>
             <Text
-              style={tailwind`text-white font-semibold text-[4] text-[#c7ea46] w-50`}
+              style={tailwind`text-white font-semibold text-[4] ${feeType === 'Expense' ? 'text-red-400' : 'text-green-400'} w-50`}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -60,54 +75,87 @@ const TransactionCard = ({ section, fee, feeType, day, amount }) => {
 
       {/* Modal for Transaction Details */}
       <Modal
-        visible={isModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {/* Title */}
-            <TouchableOpacity
-           
-              onPress={() => setIsModalVisible(false)}
-            >
-            <View style={tailwind`flex-row  gap-10 items-center mb-5 `}><X color={'white'}/>
-            <Text style={styles.title}>Transaction Details :</Text></View>
-            </TouchableOpacity>
-            {/* Details */}
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Section:</Text>
-              <Text style={styles.value}>{section}</Text>
-            </View>
-            <View style={[styles.detailRow, styles.gapAfterFee]}>
-              <Text style={styles.label}>Fee:</Text>
-              <Text style={styles.value} numberOfLines={5}>{fee}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Type:</Text>
-              <Text
-                style={[
-                  styles.value,
-                  { color: feeType === 'Expense' ? '#f96767' : '#65f21d' },
-                ]}
-              >
-                {feeType}
-              </Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Day:</Text>
-              <Text style={styles.value}>{day}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.label}>Amount:</Text>
-              <Text style={styles.value}>
-                <IndianRupee size={14} color="#c7ea46" /> {amount}
-              </Text>
-            </View>
-          </View>
+  visible={isModalVisible}
+  transparent
+  animationType="slide"
+  onRequestClose={() => setIsModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={[styles.modalContent, tailwind`rounded-2xl shadow-lg`]}>
+      {/* Header with title and actions */}
+      <View style={tailwind`flex-row justify-between items-center mb-6 pb-3 border-b border-gray-700`}>
+        <TouchableOpacity
+          style={tailwind`p-2 rounded-full bg-gray-800`}
+          onPress={() => setIsModalVisible(false)}
+        >
+          <X color="white" size={20} />
+        </TouchableOpacity>
+        
+        <Text style={[styles.title, tailwind`text-xl font-bold text-white`]}>
+          Transaction Details
+        </Text>
+        
+        <TouchableOpacity 
+          style={tailwind`p-2 rounded-full bg-red-900 bg-opacity-30`} 
+          onPress={() => handleDeleteExpense(id)}
+        >
+          <Trash color="red" size={20} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Transaction Type Badge */}
+      <View style={tailwind`mb-5 self-start`}>
+        <View 
+          style={[
+            tailwind`px-4 py-2 rounded-full`, 
+            feeType === 'Expense' 
+              ? tailwind`bg-red-900 bg-opacity-20` 
+              : tailwind`bg-green-900 bg-opacity-20`
+          ]}
+        >
+          <Text 
+            style={[
+              tailwind`font-semibold`, 
+              { color: feeType === 'Expense' ? '#f96767' : '#65f21d' }
+            ]}
+          >
+            {feeType}
+          </Text>
         </View>
-      </Modal>
+      </View>
+
+      {/* Transaction Details */}
+      <View style={tailwind`bg-gray-800 bg-opacity-80 rounded-xl p-4 mb-4`}>
+        <View style={[styles.detailRow, tailwind`mb-3`]}>
+          <Text style={[styles.label, tailwind`text-gray-400`]}>Amount:</Text>
+          <Text style={[styles.value, tailwind`text-lg font-bold text-white flex-row items-center`]}>
+            <IndianRupee size={16} color="#c7ea46" /> {amount}
+          </Text>
+        </View>
+
+        <View style={[styles.detailRow, tailwind`mb-3`]}>
+          <Text style={[styles.label, tailwind`text-gray-400`]}>Section:</Text>
+          <Text style={[styles.value, tailwind`text-white font-medium`]}>{section}</Text>
+        </View>
+
+        <View style={[styles.detailRow, tailwind`mb-3`]}>
+          <Text style={[styles.label, tailwind`text-gray-400`]}>Date:</Text>
+          <Text style={[styles.value, tailwind`text-white`]}>{day}</Text>
+        </View>
+      </View>
+
+      {/* Description */}
+      <View style={tailwind`mb-3`}>
+        <Text style={[styles.label, tailwind`text-gray-400 mb-1`]}>Description:</Text>
+        <View style={tailwind`bg-gray-800 bg-opacity-70 p-4 rounded-xl`}>
+          <Text style={[styles.value, tailwind`text-white`]} numberOfLines={5}>
+            {fee}
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</Modal>
     </>
   );
 };

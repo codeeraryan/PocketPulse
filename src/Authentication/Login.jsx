@@ -1,4 +1,4 @@
-import {  Text, View, StatusBar, Pressable, TextInput, TouchableOpacity } from 'react-native'
+import {  Text, View, StatusBar, Pressable, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'react-native'
 import React from 'react'
 import { useContext,useState } from 'react'
 import { FirebaseContext } from '../context/FirebaseContext'
@@ -21,6 +21,7 @@ const Login = ({navigation}) => {
     
   return (
     <View  style={tailwind`top:${insets.top}  h-full mx-8 `}>
+      <KeyboardAvoidingView enabled behavior='position' >
       <View>
         <Text  style={tailwind`mt-30 text-white font-semibold text-3xl`}>Hey,</Text>
         <Text  style={tailwind`mt-3 text-white font-semibold text-3xl`}>Welcome Back</Text>
@@ -35,6 +36,7 @@ const Login = ({navigation}) => {
         <TouchableOpacity onPress={handleLogin} style={tailwind`bg-[#c7ea46] justify-center items-center  rounded-xl p-3 `}><Text style={tailwind`font-semibold text-xl`}>Login</Text></TouchableOpacity>
          <View style={tailwind`flex-row justify-center gap-1 mt-5 items-center `}><Text style={tailwind`text-white`}>Don't have an account?</Text><TouchableOpacity onPress={()=>{userDetail.setIsLoginActive(false);navigation.navigate("Auth")}}><Text style={tailwind`text-[#c7ea46] font-semibold`}>SignUp</Text></TouchableOpacity></View>
         </View>
+        </KeyboardAvoidingView>
       <StatusBar barStyle={'light-content'} hidden={false}  />
     </View>
     

@@ -23,14 +23,14 @@ const Signup = ({navigation}) => {
         }
         
   return (
-    
    <View  style={tailwind`top:${insets.top}  h-full mx-8 `}>
+    <KeyboardAvoidingView enabled behavior='position' >
         <View>
         <Text  style={tailwind`mt-30 text-white font-semibold text-3xl`}>Let's</Text>
         <Text  style={tailwind` text-white font-semibold text-3xl`}>Get Started</Text>
         <Text  style={tailwind` text-white mt-10`}>Create an account to track Your expenses</Text>
       </View>
-      <KeyboardAvoidingView enabled behavior='position' >
+      
       <ScrollView showsVerticalScrollIndicator={false}>
       <View style={tailwind`gap-3 mt-8`} >
         <View style={tailwind`gap-5`}>

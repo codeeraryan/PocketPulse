@@ -9,7 +9,7 @@ import tailwind from 'twrnc'
 const Intro = ({navigation}) => {
     const insets=useSafeAreaInsets();
     const userDetail=useContext(FirebaseContext);
-    console.log(userDetail);
+    
     
     
   return (

@@ -2,10 +2,12 @@ import { initializeApp } from "firebase/app";
 import { createContext } from "react";
 import { Alert, ToastAndroid } from "react-native";
 import { getFirestore } from "firebase/firestore";
-import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile } from "firebase/auth";
+import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,signOut } from "firebase/auth";
 import React from "react";
+import { CommonActions } from "@react-navigation/native";
 import { useState } from "react";
 import { apiKey } from "../../FirebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const firebaseConfig = {
   apiKey: apiKey,
   authDomain: "pocketpulse3.firebaseapp.com",
@@ -16,7 +18,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 const db=getFirestore(app);
 export {db}
 
@@ -34,12 +36,26 @@ export const FirebaseProvider=({children})=>{
       await updateProfile(user, { displayName: name });
       setIsLogin(true);
       ToastAndroid.show(`Registered successfully`, ToastAndroid.SHORT);
-      navigation.navigate("tab")
       setUserInfo(userCredential);
+      AsyncStorage.setItem("userCred",JSON.stringify(userCredential));
+      navigation.navigate("tab")
     }
     catch(error){ ToastAndroid.show(`error occured: ${error.message}`, ToastAndroid.SHORT);}
   }
 
+  const Logout=async(navigation)=>{
+    try{
+      await signOut(auth);
+      await AsyncStorage.removeItem("userCred");
+      setIsLogin(false);
+      navigation.replace('Intro')
+       
+      ToastAndroid.show('user Logged Out', ToastAndroid.SHORT);
+
+    }
+    catch(error){
+      ToastAndroid.show(`error occured: ${error.message}`, ToastAndroid.SHORT);}
+    }
 
   const Login=async(email,password,navigation)=>{
     try{
@@ -47,17 +63,20 @@ export const FirebaseProvider=({children})=>{
       console.log(userCredential)
       setIsLogin(true);
       ToastAndroid.show(`Welcome back ${userCredential.user.displayName}`, ToastAndroid.SHORT);
-      navigation.navigate("tab");
       setUserInfo(userCredential);
+      AsyncStorage.setItem("userCred",JSON.stringify(userCredential));
+      navigation.navigate("tab");
     }
     catch(error){
       ToastAndroid.show(`error occured: ${error.message}`, ToastAndroid.SHORT);}
     }
+
+ 
   
   
   
 
   return (
-    <FirebaseContext.Provider value={{signUp,Login,isLogin,setIsLogin,isLoginActive,setIsLoginActive,userInfo,image, setImage}}>{children}</FirebaseContext.Provider>
+    <FirebaseContext.Provider value={{signUp,Login,Logout,isLogin,setIsLogin,isLoginActive,setIsLoginActive,userInfo,image, setImage}}>{children}</FirebaseContext.Provider>
   )
 }
